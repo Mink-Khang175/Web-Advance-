@@ -1,0 +1,178 @@
+<div class="container">
+  
+  <!-- Header -->
+  <div class="header">
+    <h1>Quản Lý Thông Tin Sách</h1>
+  </div>
+
+  <!-- Create New Button -->
+  <div *ngIf="viewState() === 'list'">
+    <button (click)="switchToCreate()" class="create-btn">
+      <div class="create-icon">+</div>
+      <span>Create New</span>
+    </button>
+  </div>
+
+  <!-- VIEW: LIST (Table) -->
+  <div *ngIf="viewState() === 'list'">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 200px;">Tensach</th>
+          <th style="width: 100px;">Giaban</th>
+          <th>Mota</th>
+          <th style="width: 100px;">Anhbia</th>
+          <th style="width: 140px;">Ngaycapnhat</th>
+          <th style="width: 100px;">Soluongton</th>
+          <th style="width: 60px;">MaCD</th>
+          <th style="width: 70px;">MaNXB</th>
+          <th style="width: 80px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let book of books()">
+          <td><strong>{{ book.tenSach }}</strong></td>
+          <td>{{ book.giaBan | number:'1.2-2' }}</td>
+          <td>
+            <div class="description">{{ book.moTa }}</div>
+          </td>
+          <td style="text-align: center;">
+            <img [src]="book.anhBia" alt="Cover" class="book-cover" 
+                 onError="this.src='https://via.placeholder.com/50x70?text=No+Image'">
+            <div class="image-filename">{{ getImageFileName(book.anhBia) }}</div>
+          </td>
+          <td>{{ book.ngayCapNhat }}</td>
+          <td style="text-align: center;">{{ book.soLuongTon }}</td>
+          <td style="text-align: center;">{{ book.maCD }}</td>
+          <td style="text-align: center;">{{ book.maNXB }}</td>
+          <td>
+            <div class="action-links">
+              <button (click)="switchToEdit(book)">Edit</button>
+              <button (click)="switchToDetails(book)">Details</button>
+              <button class="delete-btn" (click)="deleteBook(book)">Delete</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="books().length === 0">
+          <td colspan="9" class="loading">
+            <div *ngIf="loadingBooks">Đang tải dữ liệu...</div>
+            <div *ngIf="!loadingBooks" class="no-data">Không có dữ liệu sách.</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- VIEW: CREATE / EDIT FORM -->
+  <div *ngIf="viewState() === 'create' || viewState() === 'edit'" class="form-container">
+    <h2>{{ viewState() === 'create' ? 'Thêm Sách Mới' : 'Cập Nhật Sách' }}</h2>
+    
+    <form [formGroup]="bookForm" (ngSubmit)="saveBook()">
+      
+      <div class="form-group">
+        <label>Tên sách <span style="color: red;">*</span></label>
+        <input type="text" formControlName="tenSach" placeholder="Nhập tên sách">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Giá bán <span style="color: red;">*</span></label>
+          <input type="number" formControlName="giaBan" placeholder="0">
+        </div>
+
+        <div class="form-group">
+          <label>Số lượng tồn <span style="color: red;">*</span></label>
+          <input type="number" formControlName="soLuongTon" placeholder="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Mô tả</label>
+        <textarea formControlName="moTa" rows="5" placeholder="Nhập mô tả sách"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Ảnh bìa</label>
+        <input type="text" formControlName="anhBia" placeholder="Nhập URL ảnh">
+        <div class="file-input-wrapper">
+          <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*">
+          <span *ngIf="uploadingImage" class="upload-status">Đang tải ảnh lên...</span>
+        </div>
+        <div *ngIf="bookForm.get('anhBia')?.value" class="image-preview">
+          <img [src]="bookForm.get('anhBia')?.value" alt="Preview" 
+               onError="this.src='https://via.placeholder.com/150'">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Mã Chủ Đề <span style="color: red;">*</span></label>
+          <input type="number" formControlName="maCD" placeholder="1">
+        </div>
+
+        <div class="form-group">
+          <label>Mã NXB <span style="color: red;">*</span></label>
+          <input type="number" formControlName="maNXB" placeholder="1">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" (click)="switchToList()" class="btn btn-secondary">Hủy</button>
+        <button type="submit" [disabled]="bookForm.invalid || uploadingImage" class="btn btn-primary">
+          {{ uploadingImage ? 'Đang xử lý...' : 'Lưu thông tin' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- VIEW: DETAILS -->
+  <div *ngIf="viewState() === 'details' && selectedBook()" class="details-container">
+    <h2>Chi Tiết Sách</h2>
+    
+    <div class="details-content">
+      <div class="details-image">
+        <img [src]="selectedBook()?.anhBia" alt="Book Cover" 
+             onError="this.src='https://via.placeholder.com/200x300?text=No+Image'">
+        <div style="margin-top: 15px;">
+          <span class="price-badge">{{ selectedBook()?.giaBan | number:'1.0-0' }} đ</span>
+        </div>
+      </div>
+      
+      <div class="details-info">
+        <div class="info-group">
+          <div class="info-label">Tên sách</div>
+          <div class="info-value" style="font-size: 16px; font-weight: bold;">{{ selectedBook()?.tenSach }}</div>
+        </div>
+        
+        <div class="info-grid">
+          <div class="info-group">
+            <div class="info-label">Mã Chủ Đề</div>
+            <div class="info-value">{{ selectedBook()?.maCD }}</div>
+          </div>
+          <div class="info-group">
+            <div class="info-label">Mã NXB</div>
+            <div class="info-value">{{ selectedBook()?.maNXB }}</div>
+          </div>
+          <div class="info-group">
+            <div class="info-label">Số lượng tồn</div>
+            <div class="info-value">{{ selectedBook()?.soLuongTon }}</div>
+          </div>
+          <div class="info-group">
+            <div class="info-label">Ngày cập nhật</div>
+            <div class="info-value">{{ selectedBook()?.ngayCapNhat }}</div>
+          </div>
+        </div>
+
+        <div class="info-group">
+          <div class="info-label">Mô tả nội dung</div>
+          <div class="description-box">{{ selectedBook()?.moTa }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions" style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;">
+      <button (click)="switchToList()" class="btn btn-secondary">Quay lại danh sách</button>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,28 @@
+<div class="container">
+  <h2>Bitcoin Price Index (Real-time)</h2>
+  
+  <div *ngIf="errMessage" class="error">{{ errMessage }}</div>
+  
+  <div *ngIf="bitcoinData" class="bitcoin-info">
+    <div class="update-time">
+      <strong>Last Updated:</strong> {{ bitcoinData.time.updated }}
+    </div>
+    
+    <div class="disclaimer">
+      <strong>Disclaimer:</strong> {{ bitcoinData.disclaimer }}
+    </div>
+    
+    <h3>{{ bitcoinData.chartName }}</h3>
+    
+    <div class="currencies">
+      <div class="currency-card" *ngFor="let currency of bitcoinData.bpi | keyvalue">
+        <h4>{{ currency.value.code }} ({{ currency.value.symbol }})</h4>
+        <p class="rate">{{ currency.value.rate }}</p>
+        <p class="description">{{ currency.value.description }}</p>
+        <p class="rate-float">Rate: {{ currency.value.rate_float | number:'1.4-4' }}</p>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="!bitcoinData && !errMessage" class="loading">Loading...</div>
+</div>
