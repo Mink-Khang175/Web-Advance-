@@ -44,6 +44,8 @@ import { PageNotFound } from './page-not-found/page-not-found';
 import { Product } from './ex19/product/product';
 import { ListProduct } from './ex19/list-product/list-product';
 import { ServiceProduct } from './ex19/service-product/service-product';
+import { PaymentComponent } from './payment/payment/payment.component';
+import { PaymentResultComponent } from './payment-result/payment-result/payment-result.component';
 
 export const routes: Routes = [
   {path:"",redirectTo:"gioi-thieu",pathMatch:"full"},
@@ -107,6 +109,8 @@ export const routes: Routes = [
   // Others
   {path:"catalog",component:CatalogComponent},
   {path:"file-upload",component:FileUploadComponent},
+  {path:"payment",component:PaymentComponent},
+  {path:"payment-result",component:PaymentResultComponent},
   {path:"page-not-found",component:PageNotFound},
   
   {path:"**",component:NotfoundComponent}

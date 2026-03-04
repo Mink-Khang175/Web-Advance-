@@ -11,6 +11,8 @@ import { FakeProductComponent } from './fake-product/fake-product.component';
 import { BooksComponent } from './books/books.component';
 import { BookDetailComponent } from './book-detail/book-detail.component';
 import { NewBookComponent } from './new-book/new-book.component';
+import { PaymentComponent } from './payment/payment/payment.component';
+import { PaymentResultComponent } from './payment-result/payment-result/payment-result.component';
 
 const routes: Routes = [
   {path:"gioi-thieu",component:AboutComponent},
@@ -24,6 +26,8 @@ const routes: Routes = [
   {path:"ex41",component:BookDetailComponent},
   {path:"ex41/:id",component:BookDetailComponent},
   {path:"ex43",component:NewBookComponent},
+  {path:"payment",component:PaymentComponent},
+  {path:"payment-result",component:PaymentResultComponent},
   {path:"**",component:NotfoundComponent}
 ];
 

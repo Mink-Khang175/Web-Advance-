@@ -205,3 +205,125 @@ app.post("/api/upload",upload.single("image"),(req,res)=>{
   const imageUrl=`http://localhost:${port}/uploads/${req.file.filename}`
   res.json({imageUrl:imageUrl})
 })
+
+app.put("/books",cors(),(req,res)=>{ 
+book=database.find(x=>x.BookId==req.body.BookId) 
+if(book!=null) 
+{ 
+book.BookName=req.body.BookName 
+book.Price=req.body.Price 
+book.Image=req.body.Image 
+} 
+res.send(database) 
+})
+
+// ============ MOMO PAYMENT API ============
+const crypto=require("crypto")
+
+// MoMo configuration
+const momoConfig={
+  accessKey:"F8BBA842ECF85",
+  secretKey:"K951B6PE1waDMi640xX08PD3vg6EkVlz",
+  partnerCode:"MOMO",
+  redirectUrl:"http://localhost:4200/payment-result",
+  ipnUrl:"http://localhost:3000/payment/momo/callback",
+  requestType:"payWithMethod",
+  extraData:"",
+  autoCapture:true,
+  lang:"vi"
+}
+
+// Create MoMo payment endpoint
+app.post("/payment/momo",cors(),(req,res)=>{
+  try{
+    const{amount}=req.body
+    
+    if(!amount || amount<=0){
+      return res.status(400).json({error:"Invalid amount"})
+    }
+
+    // Generate unique order ID
+    const orderId=`MOMO${Date.now()}`
+    const requestId=orderId
+    const orderInfo=`Payment for order ${orderId}`
+
+    // Create raw signature
+    const rawSignature=`accessKey=${momoConfig.accessKey}&amount=${amount}&extraData=${momoConfig.extraData}&ipnUrl=${momoConfig.ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${momoConfig.partnerCode}&redirectUrl=${momoConfig.redirectUrl}&requestId=${requestId}&requestType=${momoConfig.requestType}`
+
+    // Generate signature using HMAC SHA256
+    const signature=crypto
+      .createHmac("sha256",momoConfig.secretKey)
+      .update(rawSignature)
+      .digest("hex")
+
+    // Prepare request body
+    const requestBody={
+      partnerCode:momoConfig.partnerCode,
+      partnerName:"Test",
+      storeId:"MomoTestStore",
+      requestId:requestId,
+      amount:amount,
+      orderId:orderId,
+      orderInfo:orderInfo,
+      redirectUrl:momoConfig.redirectUrl,
+      ipnUrl:momoConfig.ipnUrl,
+      lang:momoConfig.lang,
+      requestType:momoConfig.requestType,
+      autoCapture:momoConfig.autoCapture,
+      extraData:momoConfig.extraData,
+      signature:signature
+    }
+
+    // Send request to MoMo
+    const https=require("https")
+    const options={
+      hostname:"test-payment.momo.vn",
+      port:443,
+      path:"/v2/gateway/api/create",
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Content-Length":Buffer.byteLength(JSON.stringify(requestBody))
+      }
+    }
+
+    const momoReq=https.request(options,(momoRes)=>{
+      let data=""
+      
+      momoRes.on("data",(chunk)=>{
+        data+=chunk
+      })
+
+      momoRes.on("end",()=>{
+        try{
+          const result=JSON.parse(data)
+          console.log("MoMo Response:",result)
+          res.json(result)
+        }catch(err){
+          console.error("Error parsing MoMo response:",err)
+          res.status(500).json({error:"Invalid response from MoMo"})
+        }
+      })
+    })
+
+    momoReq.on("error",(err)=>{
+      console.error("MoMo request error:",err)
+      res.status(500).json({error:"Error connecting to MoMo"})
+    })
+
+    momoReq.write(JSON.stringify(requestBody))
+    momoReq.end()
+
+  }catch(err){
+    console.error("Payment error:",err)
+    res.status(500).json({error:"Internal server error"})
+  }
+})
+
+// MoMo IPN callback endpoint
+app.post("/payment/momo/callback",cors(),(req,res)=>{
+  console.log("MoMo IPN Callback:",req.body)
+  // Process the payment result here
+  // Update your database, send notifications, etc.
+  res.status(200).json({message:"Callback received"})
+})
