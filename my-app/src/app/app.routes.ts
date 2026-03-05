@@ -46,6 +46,8 @@ import { ListProduct } from './ex19/list-product/list-product';
 import { ServiceProduct } from './ex19/service-product/service-product';
 import { PaymentComponent } from './payment/payment/payment.component';
 import { PaymentResultComponent } from './payment-result/payment-result/payment-result.component';
+import { Ex61Login } from './ex61-login/ex61-login';
+import { Ex63Component } from './ex63/ex63';
 
 export const routes: Routes = [
   {path:"",redirectTo:"gioi-thieu",pathMatch:"full"},
@@ -92,6 +94,8 @@ export const routes: Routes = [
   {path:"ex41",component:BookDetailComponent},
   {path:"ex41/:id",component:BookDetailComponent},
   {path:"ex43",component:NewBookComponent},
+  {path:"ex61",component:Ex61Login},
+  {path:"ex63",component:Ex63Component},
   
   // Exercises
   {path:"ex10",component:Ex10},

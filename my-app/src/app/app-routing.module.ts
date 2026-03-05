@@ -13,6 +13,7 @@ import { BookDetailComponent } from './book-detail/book-detail.component';
 import { NewBookComponent } from './new-book/new-book.component';
 import { PaymentComponent } from './payment/payment/payment.component';
 import { PaymentResultComponent } from './payment-result/payment-result/payment-result.component';
+import { Ex61Login } from './ex61-login/ex61-login';
 
 const routes: Routes = [
   {path:"gioi-thieu",component:AboutComponent},
@@ -28,6 +29,7 @@ const routes: Routes = [
   {path:"ex43",component:NewBookComponent},
   {path:"payment",component:PaymentComponent},
   {path:"payment-result",component:PaymentResultComponent},
+  {path:"ex61",component:Ex61Login},
   {path:"**",component:NotfoundComponent}
 ];
 

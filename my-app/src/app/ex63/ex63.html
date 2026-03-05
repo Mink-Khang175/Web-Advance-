@@ -1,0 +1,77 @@
+<!-- Product List View -->
+<div *ngIf="view === 'products'" class="container mt-4">
+
+  <div *ngIf="message" class="alert alert-success py-2">{{ message }}</div>
+
+  <div class="row">
+    <div class="col-md-4 mb-4" *ngFor="let p of products">
+      <div class="card product-card h-100 text-center border-0">
+        <div class="product-img-wrap">
+          <img [src]="p.image" class="product-img" [alt]="p.name">
+        </div>
+        <div class="card-body d-flex flex-column px-2">
+          <p class="product-title">{{ p.name }}</p>
+          <!-- empty stars -->
+          <div class="stars mb-1">
+            <span *ngFor="let s of stars(p.rating)">&#9733;</span>
+          </div>
+          <p class="product-price">${{ p.price | number:'1.2-2' }}</p>
+          <div class="d-flex align-items-center gap-2 mt-auto justify-content-center">
+            <button class="btn btn-add-cart" (click)="addToCart(p)">ADD TO CART</button>
+            <button class="btn btn-icon"><i class="bi bi-arrow-repeat"></i>&#x21C4;</button>
+            <button class="btn btn-icon"><i class="bi bi-heart"></i>&#9825;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Shopping Cart View -->
+<div *ngIf="view === 'cart'" class="container mt-4">
+  <h4 class="text-center mb-3">Shopping cart</h4>
+
+  <div *ngIf="cart.length === 0" class="alert alert-info text-center">
+    Your cart is empty.
+    <button class="btn btn-link p-0" (click)="showProducts()">Continue shopping</button>
+  </div>
+
+  <div *ngIf="cart.length > 0">
+    <table class="table cart-table">
+      <thead>
+        <tr>
+          <th>Remove</th>
+          <th>SKU</th>
+          <th>Image</th>
+          <th>Product(s)</th>
+          <th>Price</th>
+          <th>Qty.</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of cart; let i = index">
+          <td class="text-center align-middle">
+            <input type="checkbox" [(ngModel)]="item.checked">
+          </td>
+          <td class="align-middle"></td>
+          <td class="align-middle">
+            <img [src]="item.image" width="60" height="60" style="object-fit:contain;">
+          </td>
+          <td class="align-middle">{{ item.name }}</td>
+          <td class="align-middle">${{ item.price | number:'1.2-2' }}</td>
+          <td class="align-middle">
+            <input type="number" class="form-control form-control-sm qty-input"
+                   [(ngModel)]="item.qty" min="1">
+          </td>
+          <td class="align-middle">${{ (item.price * item.qty) | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end gap-2 mt-2">
+      <button class="btn btn-update" (click)="updateCart()">Update shopping cart</button>
+      <button class="btn btn-continue" (click)="showProducts()">Continue shopping</button>
+    </div>
+  </div>
+</div>
